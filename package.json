@@ -1,0 +1,41 @@
+{
+  "name": "ninjax-desktop",
+  "productName": "NinjaX",
+  "version": "0.1.0",
+  "description": "SEO, GEO, AEO, and Social Media management desktop app",
+  "main": "dist-electron/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && tsc -p electron/tsconfig.json && vite build",
+    "dist": "npm run build && electron-builder",
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p electron/tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "drizzle-orm": "^0.33.0",
+    "electron-updater": "^6.3.0",
+    "node-cron": "^3.0.3",
+    "playwright": "^1.47.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.5.0",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "drizzle-kit": "^0.24.2",
+    "electron": "^32.0.0",
+    "electron-builder": "^25.0.5",
+    "eslint": "^9.9.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
+  }
+}
