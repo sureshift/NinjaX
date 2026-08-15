@@ -6,10 +6,42 @@ import { contextBridge, ipcRenderer } from "electron";
  */
 contextBridge.exposeInMainWorld("api", {
   seo: {
-    runAudit: (projectId: string, url: string) =>
-      ipcRenderer.invoke("seo:runAudit", projectId, url),
-    listAudits: (projectId: string) =>
-      ipcRenderer.invoke("seo:listAudits", projectId),
+    // Technical
+    runTechnicalAudit: (projectId: string, url: string) =>
+      ipcRenderer.invoke("seo:runTechnicalAudit", projectId, url),
+    checkRobotsAndSitemap: (domain: string) =>
+      ipcRenderer.invoke("seo:checkRobotsAndSitemap", domain),
+    listAudits: (projectId: string) => ipcRenderer.invoke("seo:listAudits", projectId),
+    // On-page
+    analyzeOnPage: (url: string, targetKeyword?: string) =>
+      ipcRenderer.invoke("seo:analyzeOnPage", url, targetKeyword),
+    // Performance
+    measureCoreWebVitals: (projectId: string, url: string) =>
+      ipcRenderer.invoke("seo:measureCoreWebVitals", projectId, url),
+    // Site architecture
+    crawlSite: (projectId: string, startUrl: string, maxPages?: number) =>
+      ipcRenderer.invoke("seo:crawlSite", projectId, startUrl, maxPages),
+    checkRedirectChain: (url: string) => ipcRenderer.invoke("seo:checkRedirectChain", url),
+    listCrawlIssues: (projectId: string) => ipcRenderer.invoke("seo:listCrawlIssues", projectId),
+    // Content
+    runContentAudit: (projectId: string) => ipcRenderer.invoke("seo:runContentAudit", projectId),
+    listContentAudits: (projectId: string) => ipcRenderer.invoke("seo:listContentAudits", projectId),
+    // Keywords / rank tracking
+    addKeyword: (projectId: string, keyword: string, targetUrl: string, searchEngine: string) =>
+      ipcRenderer.invoke("seo:addKeyword", projectId, keyword, targetUrl, searchEngine),
+    listKeywords: (projectId: string) => ipcRenderer.invoke("seo:listKeywords", projectId),
+    clusterKeywords: (keywordList: string[]) => ipcRenderer.invoke("seo:clusterKeywords", keywordList),
+    trackRank: (keywordId: string, keyword: string, domain: string, searchEngine: string) =>
+      ipcRenderer.invoke("seo:trackRank", keywordId, keyword, domain, searchEngine),
+    getRankHistory: (keywordId: string) => ipcRenderer.invoke("seo:getRankHistory", keywordId),
+    // Off-page / backlinks
+    fetchBacklinks: (projectId: string, domain: string) =>
+      ipcRenderer.invoke("seo:fetchBacklinks", projectId, domain),
+    listBacklinks: (projectId: string) => ipcRenderer.invoke("seo:listBacklinks", projectId),
+    // Local SEO
+    checkNapConsistency: (projectId: string, canonical: unknown, listings: unknown[]) =>
+      ipcRenderer.invoke("seo:checkNapConsistency", projectId, canonical, listings),
+    listLocalListings: (projectId: string) => ipcRenderer.invoke("seo:listLocalListings", projectId),
   },
   geo: {
     checkMentions: (projectId: string, query: string) =>

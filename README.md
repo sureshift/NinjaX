@@ -31,7 +31,22 @@ Produces `release/NinjaX-Setup-<version>.exe` — a standard installer, no depen
 
 ## Status
 
-Early scaffold. The SEO module has a working crawl → SQLite → UI round trip; GEO, AEO, and social modules are stubbed and ready to be filled in.
+**SEO module: fully built out.** Covers technical SEO, on-page SEO, performance/Core Web Vitals, site architecture, content audits, keyword & rank tracking, off-page/backlinks, and local SEO. See [`electron/modules/seo/`](./electron/modules/seo/) for the source of truth on what's implemented vs. pluggable (rank tracking and backlink data require a licensed third-party API key - see the code comments in `keywords.ts` and `backlinks.ts`).
+
+GEO, AEO, and social modules are still stubbed and ready to be filled in next.
+
+### SEO module coverage
+
+| Area | File | Status |
+|---|---|---|
+| Technical SEO (crawlability, indexability, robots.txt, sitemap, canonical, structured data, hreflang, HTTPS) | `electron/modules/seo/technical.ts` | Implemented |
+| On-page SEO (titles, meta, headings, keyword density, alt text, links, readability) | `electron/modules/seo/onpage.ts` | Implemented |
+| Performance / Core Web Vitals (LCP, CLS, INP) | `electron/modules/seo/performance.ts` | Implemented (approximate, cold-load) |
+| Site architecture (full crawl, internal link graph, orphan pages, broken links, redirect chains) | `electron/modules/seo/architecture.ts` | Implemented |
+| Content SEO (thin content, duplicate titles/meta) | `electron/modules/seo/content.ts` | Implemented |
+| Keyword research & rank tracking | `electron/modules/seo/keywords.ts` | Storage + clustering implemented; rank checking needs an API key (pluggable) |
+| Off-page / backlinks | `electron/modules/seo/backlinks.ts` | Storage + anchor/toxic analysis implemented; backlink data needs an API key (pluggable) |
+| Local SEO (NAP consistency) | `electron/modules/seo/local.ts` | Implemented; Google Business Profile sync is pluggable |
 
 ## License
 

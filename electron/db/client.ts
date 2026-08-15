@@ -42,7 +42,40 @@ function createTablesIfMissing(sqlite: Database.Database) {
     );
     CREATE TABLE IF NOT EXISTS keywords (
       id TEXT PRIMARY KEY, project_id TEXT NOT NULL, keyword TEXT NOT NULL,
-      target_url TEXT, search_engine TEXT NOT NULL
+      target_url TEXT, search_engine TEXT NOT NULL,
+      search_volume INTEGER, difficulty INTEGER, cluster TEXT
+    );
+    CREATE TABLE IF NOT EXISTS pages (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, url TEXT NOT NULL,
+      title TEXT, meta_description TEXT, canonical_url TEXT, status_code INTEGER,
+      indexable INTEGER, robots_meta TEXT, h1_count INTEGER, word_count INTEGER,
+      last_crawled_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS internal_links (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, source_page_id TEXT NOT NULL,
+      target_url TEXT NOT NULL, anchor_text TEXT
+    );
+    CREATE TABLE IF NOT EXISTS site_crawl_issues (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, url TEXT NOT NULL,
+      issue_type TEXT NOT NULL, severity TEXT NOT NULL, details TEXT, detected_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS content_audits (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, page_id TEXT,
+      issue_type TEXT NOT NULL, severity TEXT NOT NULL, details TEXT, detected_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS core_web_vitals (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, url TEXT NOT NULL,
+      lcp_ms REAL, cls REAL, inp_ms REAL, checked_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS backlinks (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, source_url TEXT NOT NULL,
+      target_url TEXT NOT NULL, anchor_text TEXT, domain_authority INTEGER,
+      is_toxic INTEGER, discovered_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS local_listings (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, platform TEXT NOT NULL,
+      business_name TEXT, address TEXT, phone TEXT, nap_consistent INTEGER,
+      checked_at TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS rank_history (
       id TEXT PRIMARY KEY, keyword_id TEXT NOT NULL, position INTEGER, checked_at TEXT NOT NULL
