@@ -28,6 +28,12 @@ interface NinjaXApi {
     listBacklinks: (projectId: string) => Promise<unknown[]>;
     checkNapConsistency: (projectId: string, canonical: unknown, listings: unknown[]) => Promise<unknown>;
     listLocalListings: (projectId: string) => Promise<unknown[]>;
+    addCompetitor: (projectId: string, name: string, domain: string) => Promise<unknown>;
+    listCompetitors: (projectId: string) => Promise<unknown[]>;
+    fetchCompetitorBacklinks: (projectId: string, competitorId: string, domain: string) => Promise<unknown[]>;
+    getBacklinkGap: (projectId: string) => Promise<unknown[]>;
+    fetchCompetitorListings: (projectId: string, competitorId: string, businessName: string, platforms: string[]) => Promise<unknown[]>;
+    getLocalListingGap: (projectId: string) => Promise<unknown[]>;
   };
   geo: {
     checkMentions: (projectId: string, query: string) => Promise<unknown>;

@@ -47,6 +47,7 @@ GEO, AEO, and social modules are still stubbed and ready to be filled in next.
 | Keyword research & rank tracking | `electron/modules/seo/keywords.ts` | Storage + clustering implemented; rank checking needs an API key (pluggable) |
 | Off-page / backlinks | `electron/modules/seo/backlinks.ts` | Storage + anchor/toxic analysis implemented; backlink data needs an API key (pluggable) |
 | Local SEO (NAP consistency) | `electron/modules/seo/local.ts` | Implemented; Google Business Profile sync is pluggable |
+| Competitor intelligence (backlink gap / "link intersect", local listing gap) | `electron/modules/seo/competitors.ts` | Implemented; depends on the same pluggable backlink/listing providers above |
 
 ## License
 

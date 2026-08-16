@@ -11,7 +11,8 @@ type Tab =
   | "content"
   | "keywords"
   | "backlinks"
-  | "local";
+  | "local"
+  | "competitors";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "technical", label: "Technical" },
@@ -22,11 +23,14 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "keywords", label: "Keywords" },
   { id: "backlinks", label: "Backlinks" },
   { id: "local", label: "Local SEO" },
+  { id: "competitors", label: "Competitors" },
 ];
 
 export default function SeoDashboard() {
   const [tab, setTab] = useState<Tab>("technical");
   const [url, setUrl] = useState("https://example.com");
+  const [competitorName, setCompetitorName] = useState("Competitor A");
+  const [competitorDomain, setCompetitorDomain] = useState("https://competitor.com");
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState<unknown>(null);
 
@@ -63,7 +67,24 @@ export default function SeoDashboard() {
       </div>
 
       <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem" }}>
-        <input value={url} onChange={(e) => setUrl(e.target.value)} style={{ flex: 1, padding: "0.5rem" }} />
+        {tab === "competitors" ? (
+          <>
+            <input
+              value={competitorName}
+              onChange={(e) => setCompetitorName(e.target.value)}
+              placeholder="Competitor name"
+              style={{ flex: 1, padding: "0.5rem" }}
+            />
+            <input
+              value={competitorDomain}
+              onChange={(e) => setCompetitorDomain(e.target.value)}
+              placeholder="Competitor domain"
+              style={{ flex: 1, padding: "0.5rem" }}
+            />
+          </>
+        ) : (
+          <input value={url} onChange={(e) => setUrl(e.target.value)} style={{ flex: 1, padding: "0.5rem" }} />
+        )}
 
         {tab === "technical" && (
           <button disabled={loading} onClick={() => run(() => api().seo.runTechnicalAudit(DEMO_PROJECT_ID, url))}>
@@ -119,13 +140,45 @@ export default function SeoDashboard() {
             Check NAP consistency (demo)
           </button>
         )}
+        {tab === "competitors" && (
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button
+              disabled={loading}
+              onClick={() => run(async () => api().seo.addCompetitor(DEMO_PROJECT_ID, competitorName, competitorDomain))}
+            >
+              Add competitor
+            </button>
+            <button disabled={loading} onClick={() => run(() => api().seo.listCompetitors(DEMO_PROJECT_ID))}>
+              List competitors
+            </button>
+            <button
+              disabled={loading}
+              onClick={async () => {
+                const list = (await api().seo.listCompetitors(DEMO_PROJECT_ID)) as { id: string; domain: string }[];
+                const match = list.find((c) => c.domain === competitorDomain);
+                if (!match) return run(async () => ({ error: "Add this competitor first." }));
+                return run(() => api().seo.fetchCompetitorBacklinks(DEMO_PROJECT_ID, match.id, competitorDomain));
+              }}
+            >
+              Fetch competitor backlinks
+            </button>
+            <button disabled={loading} onClick={() => run(() => api().seo.getBacklinkGap(DEMO_PROJECT_ID))}>
+              Show backlink gap (link intersect)
+            </button>
+            <button disabled={loading} onClick={() => run(() => api().seo.getLocalListingGap(DEMO_PROJECT_ID))}>
+              Show local listing gap
+            </button>
+          </div>
+        )}
       </div>
 
-      {tab === "keywords" || tab === "backlinks" || tab === "local" ? (
+      {tab === "keywords" || tab === "backlinks" || tab === "local" || tab === "competitors" ? (
         <p style={{ color: "#888", fontSize: "0.85rem", marginTop: "0.5rem" }}>
           {tab === "keywords" && "Rank tracking needs a rank-check provider API key (SerpApi/DataForSEO/Semrush) - see electron/modules/seo/keywords.ts."}
           {tab === "backlinks" && "Backlink data needs a provider API key (Ahrefs/Moz/Semrush) - see electron/modules/seo/backlinks.ts."}
           {tab === "local" && "This demo compares two hardcoded listings - wire real listing sources via electron/modules/seo/local.ts."}
+          {tab === "competitors" &&
+            "Add a competitor, then fetch their backlinks. Backlink gap shows sites linking to competitors but not you yet (real data needs the same backlink provider key as the Backlinks tab). Local listing gap needs a LocalListingProvider configured - see electron/modules/seo/local.ts."}
         </p>
       ) : null}
 

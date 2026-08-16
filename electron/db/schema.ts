@@ -84,10 +84,11 @@ export const coreWebVitals = sqliteTable("core_web_vitals", {
   checkedAt: text("checked_at").notNull(),
 });
 
-// --- Off-page: backlinks ---
+// --- Off-page: backlinks (competitorId null = the project's own domain, set = a tracked competitor) ---
 export const backlinks = sqliteTable("backlinks", {
   id: text("id").primaryKey(),
   projectId: text("project_id").notNull(),
+  competitorId: text("competitor_id"),
   sourceUrl: text("source_url").notNull(),
   targetUrl: text("target_url").notNull(),
   anchorText: text("anchor_text"),
@@ -96,16 +97,26 @@ export const backlinks = sqliteTable("backlinks", {
   discoveredAt: text("discovered_at").notNull(),
 });
 
-// --- Local SEO: NAP listings across directories/platforms ---
+// --- Local SEO: NAP listings (competitorId null = the project's own business, set = a tracked competitor) ---
 export const localListings = sqliteTable("local_listings", {
   id: text("id").primaryKey(),
   projectId: text("project_id").notNull(),
+  competitorId: text("competitor_id"),
   platform: text("platform").notNull(),
   businessName: text("business_name"),
   address: text("address"),
   phone: text("phone"),
   napConsistent: integer("nap_consistent", { mode: "boolean" }),
   checkedAt: text("checked_at").notNull(),
+});
+
+// --- Competitor tracking ---
+export const competitors = sqliteTable("competitors", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  name: text("name").notNull(),
+  domain: text("domain").notNull(),
+  addedAt: text("added_at").notNull(),
 });
 
 export const rankHistory = sqliteTable("rank_history", {

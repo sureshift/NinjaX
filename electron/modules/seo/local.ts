@@ -52,3 +52,23 @@ export interface LocalListingProvider {
   name: string;
   fetchListing(platform: string, businessName: string): Promise<Listing | null>;
 }
+
+let activeListingProvider: LocalListingProvider | null = null;
+
+export function setLocalListingProvider(provider: LocalListingProvider) {
+  activeListingProvider = provider;
+}
+
+/**
+ * Pulls a competitor's known listings across a set of platforms, for use in
+ * the local-listing gap analysis (electron/modules/seo/competitors.ts).
+ * Requires a LocalListingProvider to be configured - without one this
+ * simply returns an empty list rather than fabricating data.
+ */
+export async function fetchCompetitorListings(businessName: string, platforms: string[]): Promise<Listing[]> {
+  if (!activeListingProvider) return [];
+  const results = await Promise.all(
+    platforms.map((platform) => activeListingProvider!.fetchListing(platform, businessName))
+  );
+  return results.filter((l): l is Listing => l !== null);
+}

@@ -68,14 +68,18 @@ function createTablesIfMissing(sqlite: Database.Database) {
       lcp_ms REAL, cls REAL, inp_ms REAL, checked_at TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS backlinks (
-      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, source_url TEXT NOT NULL,
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, competitor_id TEXT, source_url TEXT NOT NULL,
       target_url TEXT NOT NULL, anchor_text TEXT, domain_authority INTEGER,
       is_toxic INTEGER, discovered_at TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS local_listings (
-      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, platform TEXT NOT NULL,
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, competitor_id TEXT, platform TEXT NOT NULL,
       business_name TEXT, address TEXT, phone TEXT, nap_consistent INTEGER,
       checked_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS competitors (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, name TEXT NOT NULL, domain TEXT NOT NULL,
+      added_at TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS rank_history (
       id TEXT PRIMARY KEY, keyword_id TEXT NOT NULL, position INTEGER, checked_at TEXT NOT NULL

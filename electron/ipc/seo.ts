@@ -13,6 +13,7 @@ import {
   rankHistory,
   backlinks,
   localListings,
+  competitors,
 } from "../db/schema";
 
 import { runTechnicalAudit, checkRobotsAndSitemap } from "../modules/seo/technical";
@@ -22,7 +23,8 @@ import { crawlSite, checkRedirectChain } from "../modules/seo/architecture";
 import { auditContent } from "../modules/seo/content";
 import { trackKeywordRank, clusterKeywords } from "../modules/seo/keywords";
 import { fetchBacklinksForDomain, analyzeAnchorTextDistribution, flagToxicBacklinks } from "../modules/seo/backlinks";
-import { checkNapConsistency, Listing } from "../modules/seo/local";
+import { checkNapConsistency, fetchCompetitorListings, Listing } from "../modules/seo/local";
+import { fetchCompetitorBacklinks, findBacklinkGap, findLocalListingGap } from "../modules/seo/competitors";
 
 export function registerSeoHandlers() {
   // ---------- Technical SEO ----------
@@ -244,6 +246,7 @@ export function registerSeoHandlers() {
         .values({
           id: randomUUID(),
           projectId,
+          competitorId: null,
           sourceUrl: link.sourceUrl,
           targetUrl: link.targetUrl,
           anchorText: link.anchorText,
@@ -275,6 +278,7 @@ export function registerSeoHandlers() {
           .values({
             id: randomUUID(),
             projectId,
+            competitorId: null,
             platform: result.listing.platform,
             businessName: result.listing.businessName,
             address: result.listing.address,
@@ -293,4 +297,138 @@ export function registerSeoHandlers() {
     const db = getDb();
     return db.select().from(localListings).where(eq(localListings.projectId, projectId)).all();
   });
+
+  // ---------- Competitor intelligence ----------
+  ipcMain.handle("seo:addCompetitor", async (_event, projectId: string, name: string, domain: string) => {
+    const db = getDb();
+    const record = { id: randomUUID(), projectId, name, domain, addedAt: new Date().toISOString() };
+    db.insert(competitors).values(record).run();
+    return record;
+  });
+
+  ipcMain.handle("seo:listCompetitors", async (_event, projectId: string) => {
+    const db = getDb();
+    return db.select().from(competitors).where(eq(competitors.projectId, projectId)).all();
+  });
+
+  /**
+   * Pulls a competitor's backlinks (via the same pluggable provider as the
+   * user's own backlink data) and stores them tagged with competitorId,
+   * so they show up alongside - but distinct from - the user's own backlinks.
+   */
+  ipcMain.handle(
+    "seo:fetchCompetitorBacklinks",
+    async (_event, projectId: string, competitorId: string, domain: string) => {
+      const db = getDb();
+      const results = await fetchCompetitorBacklinks(domain);
+      const now = new Date().toISOString();
+
+      for (const link of results) {
+        db.insert(backlinks)
+          .values({
+            id: randomUUID(),
+            projectId,
+            competitorId,
+            sourceUrl: link.sourceUrl,
+            targetUrl: link.targetUrl,
+            anchorText: link.anchorText,
+            domainAuthority: link.domainAuthority,
+            isToxic: false,
+            discoveredAt: now,
+          })
+          .run();
+      }
+
+      return results;
+    }
+  );
+
+  /**
+   * "Link Intersect" - domains that link to one or more tracked competitors
+   * but not to the user's own site yet. Ranked by domain authority.
+   */
+  ipcMain.handle("seo:getBacklinkGap", async (_event, projectId: string) => {
+    const db = getDb();
+    const allLinks = db.select().from(backlinks).where(eq(backlinks.projectId, projectId)).all();
+    const allCompetitors = db.select().from(competitors).where(eq(competitors.projectId, projectId)).all();
+
+    const ownBacklinks = allLinks
+      .filter((l) => !l.competitorId)
+      .map((l) => ({ sourceUrl: l.sourceUrl, targetUrl: l.targetUrl, anchorText: l.anchorText, domainAuthority: l.domainAuthority }));
+
+    const competitorBacklinksByDomain = new Map<string, ReturnType<typeof mapBacklinkRow>[]>();
+    for (const competitor of allCompetitors) {
+      const links = allLinks
+        .filter((l) => l.competitorId === competitor.id)
+        .map(mapBacklinkRow);
+      competitorBacklinksByDomain.set(competitor.domain, links);
+    }
+
+    return findBacklinkGap(ownBacklinks, competitorBacklinksByDomain);
+  });
+
+  /**
+   * Pulls a competitor's known NAP listings across a set of directory
+   * platforms (requires a LocalListingProvider - see local.ts) and stores
+   * them tagged with competitorId.
+   */
+  ipcMain.handle(
+    "seo:fetchCompetitorListings",
+    async (_event, projectId: string, competitorId: string, businessName: string, platforms: string[]) => {
+      const db = getDb();
+      const results = await fetchCompetitorListings(businessName, platforms);
+      const now = new Date().toISOString();
+
+      for (const listing of results) {
+        db.insert(localListings)
+          .values({
+            id: randomUUID(),
+            projectId,
+            competitorId,
+            platform: listing.platform,
+            businessName: listing.businessName,
+            address: listing.address,
+            phone: listing.phone,
+            napConsistent: null,
+            checkedAt: now,
+          })
+          .run();
+      }
+
+      return results;
+    }
+  );
+
+  /**
+   * Directory platforms where tracked competitors have a listing but the
+   * user's own business does not - i.e. citations worth claiming.
+   */
+  ipcMain.handle("seo:getLocalListingGap", async (_event, projectId: string) => {
+    const db = getDb();
+    const allListings = db.select().from(localListings).where(eq(localListings.projectId, projectId)).all();
+    const allCompetitors = db.select().from(competitors).where(eq(competitors.projectId, projectId)).all();
+
+    const ownListings = allListings
+      .filter((l) => !l.competitorId)
+      .map((l) => ({ platform: l.platform, businessName: l.businessName ?? "", address: l.address ?? "", phone: l.phone ?? "" }));
+
+    const competitorListingsByName = new Map<string, Listing[]>();
+    for (const competitor of allCompetitors) {
+      const listings = allListings
+        .filter((l) => l.competitorId === competitor.id)
+        .map((l) => ({ platform: l.platform, businessName: l.businessName ?? "", address: l.address ?? "", phone: l.phone ?? "" }));
+      competitorListingsByName.set(competitor.name, listings);
+    }
+
+    return findLocalListingGap(ownListings, competitorListingsByName);
+  });
+}
+
+function mapBacklinkRow(row: {
+  sourceUrl: string;
+  targetUrl: string;
+  anchorText: string | null;
+  domainAuthority: number | null;
+}) {
+  return { sourceUrl: row.sourceUrl, targetUrl: row.targetUrl, anchorText: row.anchorText, domainAuthority: row.domainAuthority };
 }

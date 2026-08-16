@@ -42,6 +42,16 @@ contextBridge.exposeInMainWorld("api", {
     checkNapConsistency: (projectId: string, canonical: unknown, listings: unknown[]) =>
       ipcRenderer.invoke("seo:checkNapConsistency", projectId, canonical, listings),
     listLocalListings: (projectId: string) => ipcRenderer.invoke("seo:listLocalListings", projectId),
+    // Competitor intelligence
+    addCompetitor: (projectId: string, name: string, domain: string) =>
+      ipcRenderer.invoke("seo:addCompetitor", projectId, name, domain),
+    listCompetitors: (projectId: string) => ipcRenderer.invoke("seo:listCompetitors", projectId),
+    fetchCompetitorBacklinks: (projectId: string, competitorId: string, domain: string) =>
+      ipcRenderer.invoke("seo:fetchCompetitorBacklinks", projectId, competitorId, domain),
+    getBacklinkGap: (projectId: string) => ipcRenderer.invoke("seo:getBacklinkGap", projectId),
+    fetchCompetitorListings: (projectId: string, competitorId: string, businessName: string, platforms: string[]) =>
+      ipcRenderer.invoke("seo:fetchCompetitorListings", projectId, competitorId, businessName, platforms),
+    getLocalListingGap: (projectId: string) => ipcRenderer.invoke("seo:getLocalListingGap", projectId),
   },
   geo: {
     checkMentions: (projectId: string, query: string) =>
