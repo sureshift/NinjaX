@@ -24,13 +24,12 @@ export interface TechnicalAuditResult {
 export async function runTechnicalAudit(url: string): Promise<TechnicalAuditResult> {
   const browser = await chromium.launch();
   const issues: string[] = [];
-  let statusCode: number | null = null;
 
   try {
     const page = await browser.newPage();
 
     const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
-    statusCode = response?.status() ?? null;
+    const statusCode = response?.status() ?? null;
 
     if (statusCode && statusCode >= 400) issues.push(`Page returned HTTP ${statusCode}`);
 
