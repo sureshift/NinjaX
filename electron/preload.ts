@@ -67,4 +67,44 @@ contextBridge.exposeInMainWorld("api", {
     schedulePost: (accountId: string, content: string, scheduledAt: string) =>
       ipcRenderer.invoke("social:schedulePost", accountId, content, scheduledAt),
   },
+  ai: {
+    saveProviderConfig: (config: unknown) => ipcRenderer.invoke("ai:saveProviderConfig", config),
+    getProviderConfig: () => ipcRenderer.invoke("ai:getProviderConfig"),
+    generateContent: (projectId: string, request: unknown) =>
+      ipcRenderer.invoke("ai:generateContent", projectId, request),
+    listGeneratedContent: (projectId: string) => ipcRenderer.invoke("ai:listGeneratedContent", projectId),
+    analyzeSite: (projectId: string) => ipcRenderer.invoke("ai:analyzeSite", projectId),
+    generateReport: (projectId: string, projectName: string, domain: string) =>
+      ipcRenderer.invoke("ai:generateReport", projectId, projectName, domain),
+    listReports: (projectId: string) => ipcRenderer.invoke("ai:listReports", projectId),
+    draftFixesForContentIssues: (projectId: string) =>
+      ipcRenderer.invoke("ai:draftFixesForContentIssues", projectId),
+    listSuggestedFixes: (projectId: string) => ipcRenderer.invoke("ai:listSuggestedFixes", projectId),
+    updateFixStatus: (fixId: string, status: string) => ipcRenderer.invoke("ai:updateFixStatus", fixId, status),
+  },
+  google: {
+    connect: (projectId: string, service: string, clientId: string, clientSecret: string, accountLabel?: string) =>
+      ipcRenderer.invoke("google:connect", projectId, service, clientId, clientSecret, accountLabel),
+    listConnections: (projectId: string) => ipcRenderer.invoke("google:listConnections", projectId),
+    searchConsole: {
+      listSites: (projectId: string) => ipcRenderer.invoke("google:searchConsole:listSites", projectId),
+      sync: (projectId: string, siteUrl: string, startDate: string, endDate: string) =>
+        ipcRenderer.invoke("google:searchConsole:sync", projectId, siteUrl, startDate, endDate),
+      listMetrics: (projectId: string) => ipcRenderer.invoke("google:searchConsole:listMetrics", projectId),
+    },
+    analytics: {
+      listProperties: (projectId: string) => ipcRenderer.invoke("google:analytics:listProperties", projectId),
+      sync: (projectId: string, propertyId: string, startDate: string, endDate: string) =>
+        ipcRenderer.invoke("google:analytics:sync", projectId, propertyId, startDate, endDate),
+      listMetrics: (projectId: string) => ipcRenderer.invoke("google:analytics:listMetrics", projectId),
+    },
+    businessProfile: {
+      listLocations: (projectId: string) => ipcRenderer.invoke("google:businessProfile:listLocations", projectId),
+      syncReviews: (projectId: string, locationName: string) =>
+        ipcRenderer.invoke("google:businessProfile:syncReviews", projectId, locationName),
+      listReviews: (projectId: string) => ipcRenderer.invoke("google:businessProfile:listReviews", projectId),
+      syncAsOwnListing: (projectId: string, locationName: string) =>
+        ipcRenderer.invoke("google:businessProfile:syncAsOwnListing", projectId, locationName),
+    },
+  },
 });

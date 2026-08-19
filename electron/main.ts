@@ -5,7 +5,10 @@ import { registerSeoHandlers } from "./ipc/seo";
 import { registerGeoHandlers } from "./ipc/geo";
 import { registerAeoHandlers } from "./ipc/aeo";
 import { registerSocialHandlers } from "./ipc/social";
+import { registerAiHandlers } from "./ipc/ai";
+import { registerGoogleHandlers } from "./ipc/google";
 import { startScheduler } from "./services/scheduler";
+import { restoreAiProviderOnStartup } from "./services/aiSettings";
 
 const isDev = !app.isPackaged;
 
@@ -36,11 +39,16 @@ app.whenReady().then(() => {
   // Initialize the local SQLite database (creates file + runs migrations on first launch)
   getDb();
 
+  // Re-activate the user's saved AI provider (online API key or offline local model)
+  restoreAiProviderOnStartup();
+
   // Register all module IPC handlers - renderer talks to these via preload's contextBridge
   registerSeoHandlers();
   registerGeoHandlers();
   registerAeoHandlers();
   registerSocialHandlers();
+  registerAiHandlers();
+  registerGoogleHandlers();
 
   // Start recurring jobs: rank checks, scheduled social posts, audits
   startScheduler();

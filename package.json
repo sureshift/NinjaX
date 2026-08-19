@@ -17,6 +17,7 @@
     "better-sqlite3": "^11.3.0",
     "drizzle-orm": "^0.33.0",
     "electron-updater": "^6.3.0",
+    "googleapis": "^174.0.1",
     "node-cron": "^3.0.3",
     "playwright": "^1.47.0",
     "react": "^18.3.1",

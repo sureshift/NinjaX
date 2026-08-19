@@ -45,6 +45,38 @@ interface NinjaXApi {
     listAccounts: (projectId: string) => Promise<unknown[]>;
     schedulePost: (accountId: string, content: string, scheduledAt: string) => Promise<unknown>;
   };
+  ai: {
+    saveProviderConfig: (config: unknown) => Promise<unknown>;
+    getProviderConfig: () => Promise<unknown>;
+    generateContent: (projectId: string, request: unknown) => Promise<unknown>;
+    listGeneratedContent: (projectId: string) => Promise<unknown[]>;
+    analyzeSite: (projectId: string) => Promise<string>;
+    generateReport: (projectId: string, projectName: string, domain: string) => Promise<unknown>;
+    listReports: (projectId: string) => Promise<unknown[]>;
+    draftFixesForContentIssues: (projectId: string) => Promise<unknown[]>;
+    listSuggestedFixes: (projectId: string) => Promise<unknown[]>;
+    updateFixStatus: (fixId: string, status: string) => Promise<unknown>;
+  };
+  google: {
+    connect: (projectId: string, service: string, clientId: string, clientSecret: string, accountLabel?: string) => Promise<unknown>;
+    listConnections: (projectId: string) => Promise<unknown[]>;
+    searchConsole: {
+      listSites: (projectId: string) => Promise<string[]>;
+      sync: (projectId: string, siteUrl: string, startDate: string, endDate: string) => Promise<unknown>;
+      listMetrics: (projectId: string) => Promise<unknown[]>;
+    };
+    analytics: {
+      listProperties: (projectId: string) => Promise<unknown[]>;
+      sync: (projectId: string, propertyId: string, startDate: string, endDate: string) => Promise<unknown>;
+      listMetrics: (projectId: string) => Promise<unknown[]>;
+    };
+    businessProfile: {
+      listLocations: (projectId: string) => Promise<unknown[]>;
+      syncReviews: (projectId: string, locationName: string) => Promise<unknown>;
+      listReviews: (projectId: string) => Promise<unknown[]>;
+      syncAsOwnListing: (projectId: string, locationName: string) => Promise<unknown>;
+    };
+  };
 }
 
 declare global {

@@ -81,6 +81,37 @@ function createTablesIfMissing(sqlite: Database.Database) {
       id TEXT PRIMARY KEY, project_id TEXT NOT NULL, name TEXT NOT NULL, domain TEXT NOT NULL,
       added_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS ai_generated_content (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, content_type TEXT NOT NULL,
+      topic TEXT, content TEXT NOT NULL, generated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS ai_reports (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, title TEXT NOT NULL,
+      content_markdown TEXT NOT NULL, generated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS ai_suggested_fixes (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, issue_source TEXT NOT NULL,
+      issue_ref_id TEXT, url TEXT NOT NULL, issue_type TEXT NOT NULL,
+      suggested_fix TEXT NOT NULL, status TEXT NOT NULL, generated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS google_connections (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, service TEXT NOT NULL, account_label TEXT,
+      access_token_encrypted TEXT NOT NULL, refresh_token_encrypted TEXT NOT NULL,
+      expiry_date INTEGER, connected_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS search_console_metrics (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, query TEXT, page TEXT,
+      clicks INTEGER, impressions INTEGER, ctr REAL, position REAL, date TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS analytics_metrics (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, date TEXT NOT NULL,
+      sessions INTEGER, active_users INTEGER, page_views INTEGER, bounce_rate REAL,
+      avg_session_duration REAL
+    );
+    CREATE TABLE IF NOT EXISTS gbp_reviews (
+      id TEXT PRIMARY KEY, project_id TEXT NOT NULL, review_id TEXT NOT NULL,
+      reviewer_name TEXT, star_rating INTEGER, comment TEXT, create_time TEXT
+    );
     CREATE TABLE IF NOT EXISTS rank_history (
       id TEXT PRIMARY KEY, keyword_id TEXT NOT NULL, position INTEGER, checked_at TEXT NOT NULL
     );

@@ -119,6 +119,81 @@ export const competitors = sqliteTable("competitors", {
   addedAt: text("added_at").notNull(),
 });
 
+// --- AI: generated content, analysis, reports, suggested fixes ---
+export const aiGeneratedContent = sqliteTable("ai_generated_content", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  contentType: text("content_type").notNull(),
+  topic: text("topic"),
+  content: text("content").notNull(),
+  generatedAt: text("generated_at").notNull(),
+});
+
+export const aiReports = sqliteTable("ai_reports", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  title: text("title").notNull(),
+  contentMarkdown: text("content_markdown").notNull(),
+  generatedAt: text("generated_at").notNull(),
+});
+
+export const aiSuggestedFixes = sqliteTable("ai_suggested_fixes", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  issueSource: text("issue_source").notNull(), // 'technical' | 'content' | 'site_crawl'
+  issueRefId: text("issue_ref_id"),
+  url: text("url").notNull(),
+  issueType: text("issue_type").notNull(),
+  suggestedFix: text("suggested_fix").notNull(),
+  status: text("status").notNull(), // 'pending' | 'applied' | 'dismissed'
+  generatedAt: text("generated_at").notNull(),
+});
+
+// --- Google integrations: OAuth connections and pulled metrics ---
+export const googleConnections = sqliteTable("google_connections", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  service: text("service").notNull(), // 'search_console' | 'analytics' | 'business_profile'
+  accountLabel: text("account_label"),
+  accessTokenEncrypted: text("access_token_encrypted").notNull(),
+  refreshTokenEncrypted: text("refresh_token_encrypted").notNull(),
+  expiryDate: integer("expiry_date"),
+  connectedAt: text("connected_at").notNull(),
+});
+
+export const searchConsoleMetrics = sqliteTable("search_console_metrics", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  query: text("query"),
+  page: text("page"),
+  clicks: integer("clicks"),
+  impressions: integer("impressions"),
+  ctr: real("ctr"),
+  position: real("position"),
+  date: text("date").notNull(),
+});
+
+export const analyticsMetrics = sqliteTable("analytics_metrics", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  date: text("date").notNull(),
+  sessions: integer("sessions"),
+  activeUsers: integer("active_users"),
+  pageViews: integer("page_views"),
+  bounceRate: real("bounce_rate"),
+  avgSessionDuration: real("avg_session_duration"),
+});
+
+export const gbpReviews = sqliteTable("gbp_reviews", {
+  id: text("id").primaryKey(),
+  projectId: text("project_id").notNull(),
+  reviewId: text("review_id").notNull(),
+  reviewerName: text("reviewer_name"),
+  starRating: integer("star_rating"),
+  comment: text("comment"),
+  createTime: text("create_time"),
+});
+
 export const rankHistory = sqliteTable("rank_history", {
   id: text("id").primaryKey(),
   keywordId: text("keyword_id").notNull(),
